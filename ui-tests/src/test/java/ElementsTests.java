@@ -1,6 +1,15 @@
 
 import assertions.PageAssert;
 import config.Configuration;
+import com.codeborne.selenide.WebDriverRunner;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+
 
 import io.qameta.allure.Story;
 import org.aeonbits.owner.ConfigFactory;
@@ -11,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pages.*;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import static com.codeborne.selenide.Selenide.*;
@@ -23,13 +34,26 @@ public class ElementsTests {
     private StartPage startPage;
 
 
-@BeforeEach
-public void setUp() {
-    config = ConfigFactory.create(Configuration.class);
-    startPage = new StartPage();
-    startPage.openPage(config.baseUrl());
+    @BeforeEach
+    public void setUp() {
+        config = ConfigFactory.create(Configuration.class);
 
-}
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability("browserName", "chrome");
+
+        Map<String, Object> selenoidOptions = new HashMap<>();
+        selenoidOptions.put("enableVNC", true);
+        capabilities.setCapability("selenoid:options", selenoidOptions);
+
+        // Correctly set the capabilities to Selenide
+        com.codeborne.selenide.Configuration.browserCapabilities = capabilities; // Notice the full path if not imported
+        com.codeborne.selenide.Configuration.remote = "http://51.250.71.242:4444/wd/hub"; http://51.250.71.242:4444/  http://localhost:4444/wd/hub
+
+        startPage = new StartPage();
+        startPage.openPage(config.baseUrl());
+    }
+
+
     @Test
     @Story("Перейти на страницу Checkboxes. Выделить первый чекбокс, снять выделение со второго чекбокса. Вывести в консоль состояние атрибута checked для каждого чекбокса.")
     void checkboxTest() {
